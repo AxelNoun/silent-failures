@@ -1,0 +1,471 @@
+<title>Silent Failures Registry</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a field guide. A title plate, a legend, then one specimen plate per entry: number and Latin plate name on a left rail, the description as a labelled card, the real specimen framed at the bottom. */
+:root {
+  --paper: #eef0ec;
+  --plate: #f8f9f6;
+  --ink: #141a1c;
+  --ink-2: #4b5660;
+  --rule: #cfd6d0;
+  --verdigris: #1f6b6e;
+  --verdigris-soft: #dceeee;
+  --mark: #b23a2a;
+  --mark-soft: #f3e1dd;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --paper: #111516; --plate: #191f21; --ink: #e9ecea; --ink-2: #a3adb3; --rule: #2d3639; --verdigris: #7fc9c9; --verdigris-soft: #163234; --mark: #ef8a7a; --mark-soft: #3b2220; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --paper: #111516; --plate: #191f21; --ink: #e9ecea; --ink-2: #a3adb3; --rule: #2d3639; --verdigris: #7fc9c9; --verdigris-soft: #163234; --mark: #ef8a7a; --mark-soft: #3b2220; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.55; }
+a { color: var(--verdigris); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--verdigris); outline-offset: 2px; }
+.wrap { max-width: 900px; margin: 0 auto; padding-block: 28px 72px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; margin: 0; text-wrap: balance; line-height: 1.1; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.topline { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 13px; color: var(--ink-2); align-items: center; }
+.lang button, .filters button { background: none; border: 1px solid var(--rule); border-radius: 4px; padding: 4px 10px; color: var(--ink-2); cursor: pointer; font: inherit; font-size: 13px; }
+.lang button[aria-pressed="true"], .filters button[aria-pressed="true"] { background: var(--verdigris); color: var(--plate); border-color: var(--verdigris); }
+header.title-plate { margin-top: 36px; padding: 28px 0 24px; border-top: 3px solid var(--ink); border-bottom: 1px solid var(--rule); }
+.kicker { font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+h1 { font-size: clamp(36px, 7vw, 64px); font-weight: 700; margin-top: 10px; }
+.subtitle { font-family: var(--font-display); font-size: clamp(18px, 2.6vw, 24px); font-weight: 500; color: var(--ink-2); margin-top: 10px; max-width: 30ch; }
+.lede { max-width: 66ch; margin-top: 18px; font-size: 17px; }
+.meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px 24px; margin-top: 20px; font-size: 13px; color: var(--ink-2); }
+.meta b { color: var(--ink); font-weight: 600; }
+.legend { margin-top: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; font-size: 13px; }
+.legend div { padding: 10px 12px; border: 1px solid var(--rule); border-radius: 6px; background: var(--plate); }
+.legend b { display: block; font-family: var(--font-mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--verdigris); margin-bottom: 4px; }
+.filters { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 28px; align-items: center; }
+.filters span { font-size: 13px; color: var(--ink-2); margin-right: 4px; }
+.plates { display: grid; gap: 22px; margin-top: 22px; }
+.plate { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 0 20px; background: var(--plate); border: 1px solid var(--rule); border-radius: 8px; padding: 20px 22px 22px; }
+@media (max-width: 640px) { .plate { grid-template-columns: 1fr; gap: 10px; } .plate .rail { border-right: 0; border-bottom: 1px solid var(--rule); padding-bottom: 10px; } }
+.plate .rail { border-right: 1px solid var(--rule); padding-right: 14px; min-width: 0; }
+.plate .rail .num { font-family: var(--font-display); font-size: 34px; font-weight: 700; line-height: 1; color: var(--ink); }
+.plate .rail .latin { font-family: var(--font-display); font-style: italic; font-size: 15px; color: var(--ink-2); margin-top: 8px; line-height: 1.25; }
+.plate .rail .chips { display: grid; gap: 6px; margin-top: 14px; }
+.chip { display: inline-block; font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; border: 1px solid var(--rule); color: var(--ink-2); width: max-content; }
+.chip.detect-static { background: var(--verdigris-soft); color: var(--verdigris); border-color: transparent; }
+.chip.detect-heuristic { background: var(--verdigris-soft); color: var(--verdigris); border-color: transparent; opacity: .8; }
+.chip.detect-manual { background: var(--mark-soft); color: var(--mark); border-color: transparent; }
+.plate h2 { font-size: 24px; margin-bottom: 14px; }
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 22px; min-width: 0; }
+@media (max-width: 760px) { .fields { grid-template-columns: 1fr; } }
+.field { min-width: 0; }
+.field dt { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); margin-bottom: 3px; }
+.field dd { margin: 0; font-size: 14.5px; }
+.field.symptom dd { color: var(--mark); }
+.specimen { grid-column: 1 / -1; margin-top: 16px; padding: 12px 14px; border-left: 3px solid var(--verdigris); background: var(--verdigris-soft); border-radius: 0 6px 6px 0; font-size: 14px; }
+.specimen b { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--verdigris); display: block; margin-bottom: 4px; }
+.refs { grid-column: 1 / -1; margin-top: 10px; font-size: 12.5px; color: var(--ink-2); }
+.refs a { color: var(--ink-2); }
+section.about { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--rule); display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; font-size: 14.5px; }
+section.about h3 { font-size: 20px; margin-bottom: 8px; }
+section.about p { margin: 6px 0; }
+pre.cite { font-family: var(--font-mono); font-size: 12.5px; background: var(--plate); border: 1px solid var(--rule); border-radius: 6px; padding: 10px 12px; overflow-x: auto; white-space: pre-wrap; }
+footer { margin-top: 40px; font-size: 13px; color: var(--ink-2); border-top: 1px solid var(--rule); padding-top: 16px; }
+[hidden] { display: none !important; }
+</style>
+
+<div class="wrap">
+  <div class="topline">
+    <span class="mono">v0.1 · 2026-10-20 · 20 plates · <a href="https://github.com/AxelNoun" target="_blank" rel="noopener">github.com/AxelNoun</a></span>
+    <span class="lang" role="group" aria-label="Language"><button id="l-en" aria-pressed="true">EN</button> <button id="l-fr" aria-pressed="false">FR</button></span>
+  </div>
+
+  <header class="title-plate">
+    <div class="kicker" data-en="A field guide to bugs that don't crash" data-fr="Un guide de terrain des bugs qui ne plantent pas">A field guide to bugs that don't crash</div>
+    <h1 data-en="Silent Failures Registry" data-fr="Registre des défauts silencieux">Silent Failures Registry</h1>
+    <div class="subtitle" data-en="Twenty ways scientific and ML code returns a wrong answer without raising an error." data-fr="Vingt façons dont le code scientifique et ML rend une réponse fausse sans lever d'erreur.">Twenty ways scientific and ML code returns a wrong answer without raising an error.</div>
+    <p class="lede" data-en="Every plate names one class of defect, where it hides, what it looks like from the outside, how it works, how to detect it, and the test that would have caught it. Every plate is anchored to a specimen: a public pull request or issue where the pattern was found and fixed, with the numbers reported there. Thirteen classes have a static detector in the companion tool, sfradar; seven are documented for manual review." data-fr="Chaque plaque nomme une classe de défaut, où elle se cache, ce qu'on en voit de l'extérieur, son mécanisme, sa détection, et le test qui l'aurait attrapée. Chaque plaque est adossée à un spécimen : une pull request ou une issue publique où le motif a été trouvé et corrigé, avec les chiffres rapportés là. Treize classes ont un détecteur statique dans l'outil compagnon, sfradar ; sept sont documentées pour la revue manuelle.">Every plate names one class of defect, where it hides, what it looks like from the outside, how it works, how to detect it, and the test that would have caught it. Every plate is anchored to a specimen: a public pull request or issue where the pattern was found and fixed, with the numbers reported there. Thirteen classes have a static detector in the companion tool, sfradar; seven are documented for manual review.</p>
+    <div class="meta">
+      <div><b data-en="Author" data-fr="Auteur">Author</b><br>Axel Coiffard-Donaty</div>
+      <div><b data-en="Specimens" data-fr="Spécimens">Specimens</b><br>PyTorch ExecuTorch, PyHealth, Brian2, python-neo, DeepLabCut, HSSM, mlx-lm, PyTorch</div>
+      <div><b data-en="Companion tool" data-fr="Outil compagnon">Companion tool</b><br>sfradar — 7/7 specimens detected on pre-fix code, 0 findings on a clean control</div>
+      <div><b data-en="Licence" data-fr="Licence">Licence</b><br>CC BY 4.0 (text) · MIT (code)</div>
+    </div>
+  </header>
+
+  <div class="legend">
+    <div><b data-en="Family" data-fr="Famille">Family</b><span data-en="data · numerics · concurrency · control-flow · build-ci · codegen" data-fr="données · numérique · concurrence · flot de contrôle · build-ci · génération de code">data · numerics · concurrency · control-flow · build-ci · codegen</span></div>
+    <div><b data-en="Detectability" data-fr="Détectabilité">Detectability</b><span data-en="static: a pattern the tool finds exactly · heuristic: a risk the tool flags, a person confirms · manual: review checklist only" data-fr="statique : un motif que l'outil trouve exactement · heuristique : un risque signalé, confirmé par une personne · manuel : liste de revue seulement">static: a pattern the tool finds exactly · heuristic: a risk the tool flags, a person confirms · manual: review checklist only</span></div>
+    <div><b data-en="Symptom" data-fr="Symptôme">Symptom</b><span data-en="printed in red: what you would observe before you knew why" data-fr="en rouge : ce que vous observeriez avant de savoir pourquoi">printed in red: what you would observe before you knew why</span></div>
+  </div>
+
+  <div class="filters" role="group" aria-label="Filter by family">
+    <span data-en="Show" data-fr="Afficher">Show</span>
+    <button data-f="all" aria-pressed="true" data-en="all" data-fr="tout">all</button>
+    <button data-f="data" aria-pressed="false">data</button>
+    <button data-f="numerics" aria-pressed="false">numerics</button>
+    <button data-f="concurrency" aria-pressed="false">concurrency</button>
+    <button data-f="control-flow" aria-pressed="false">control-flow</button>
+    <button data-f="build-ci" aria-pressed="false">build-ci</button>
+    <button data-f="codegen" aria-pressed="false">codegen</button>
+  </div>
+
+  <div class="plates" id="plates"></div>
+
+  <section class="about">
+    <div>
+      <h3 data-en="How to use it" data-fr="Comment l'utiliser">How to use it</h3>
+      <p data-en="As a review checklist before a result leaves the lab: walk the twenty plates against the pipeline and write down, for each, 'checked', 'not applicable' or 'not checked'. The honest third column is the point." data-fr="Comme liste de revue avant qu'un résultat sorte du labo : parcourir les vingt plaques face au pipeline et écrire, pour chacune, « vérifié », « sans objet » ou « non vérifié ». La troisième colonne, honnête, est tout l'intérêt.">As a review checklist before a result leaves the lab: walk the twenty plates against the pipeline and write down, for each, 'checked', 'not applicable' or 'not checked'. The honest third column is the point.</p>
+      <p data-en="As a screening tool: run sfradar on the repository; it ranks where to look first and hides its own low-confidence guesses." data-fr="Comme outil de tri : lancer sfradar sur le dépôt ; il classe où regarder d'abord et cache ses propres hypothèses faibles.">As a screening tool: run sfradar on the repository; it ranks where to look first and hides its own low-confidence guesses.</p>
+    </div>
+    <div>
+      <h3 data-en="How to cite" data-fr="Comment citer">How to cite</h3>
+      <pre class="cite">Coiffard-Donaty, A. (2026). Silent Failures Registry, v0.1. https://github.com/AxelNoun</pre>
+      <p data-en="Contributions: a new plate needs a public specimen with numbers; a fix to a plate needs a reference or a reproduction." data-fr="Contributions : une nouvelle plaque exige un spécimen public chiffré ; une correction de plaque exige une référence ou une reproduction.">Contributions: a new plate needs a public specimen with numbers; a fix to a plate needs a reference or a reproduction.</p>
+    </div>
+    <div>
+      <h3 data-en="What it is not" data-fr="Ce que ce n'est pas">What it is not</h3>
+      <p data-en="Not a taxonomy of all software bugs, not a security catalogue (see CWE for that), not a proof that a codebase is correct. It is the written-down method of one practitioner, with its evidence attached, so that others can check it and extend it." data-fr="Ni une taxonomie de tous les bugs, ni un catalogue de sécurité (voir CWE), ni une preuve qu'une base de code est correcte. C'est la méthode écrite d'un praticien, avec ses preuves, pour que d'autres la vérifient et l'étendent.">Not a taxonomy of all software bugs, not a security catalogue (see CWE for that), not a proof that a codebase is correct. It is the written-down method of one practitioner, with its evidence attached, so that others can check it and extend it.</p>
+    </div>
+  </section>
+
+  <footer>
+    <span data-en="Quotes from maintainers are verbatim from the linked pages. Latin plate names are mnemonics, not a formal nomenclature." data-fr="Les citations des mainteneurs sont reprises mot pour mot. Les noms latins des plaques sont des mnémoniques, pas une nomenclature.">Quotes from maintainers are verbatim from the linked pages. Latin plate names are mnemonics, not a formal nomenclature.</span>
+  </footer>
+</div>
+
+<script>
+// Silent Failures Registry — v0.1 (2026-10-20). Each entry is a "plate".
+// Fields: id, latin (plate name), family, detect (static|heuristic|manual), en/fr blocks, specimen, refs.
+const ENTRIES = [
+{id:"SF-01", latin:"Fuga per gregem", family:"data", detect:"heuristic",
+ en:{name:"Grouped-entity leakage across splits", habitat:"Any train/test or cross-validation split over data where several rows belong to one entity (patient, subject, session, animal, user).",
+  symptom:"Metrics look excellent in validation and collapse on new entities. Random splits beat the published number; cold-entity splits do not.",
+  mechanism:"The model memorises entity-specific signal present on both sides of the split. The leak is structural, not a bug in the model.",
+  detection:"Build the set of entity ids per split and assert they are disjoint. Compare random vs grouped splits: a large gap is the leak's size.",
+  test:"A test that fails when any entity id appears in two splits; a second one that re-runs the metric under GroupKFold."},
+ fr:{name:"Fuite d'entité groupée entre splits", habitat:"Tout découpage train/test ou validation croisée sur des données où plusieurs lignes appartiennent à une même entité (patient, sujet, session, animal, utilisateur).",
+  symptom:"Des métriques excellentes en validation qui s'effondrent sur de nouvelles entités. Le découpage aléatoire bat le chiffre publié ; le découpage par entité non.",
+  mechanism:"Le modèle mémorise un signal propre à l'entité, présent des deux côtés du découpage. La fuite est structurelle, pas un bug du modèle.",
+  detection:"Construire l'ensemble des identifiants d'entité par split et vérifier qu'ils sont disjoints. Comparer split aléatoire et split groupé : l'écart mesure la fuite.",
+  test:"Un test qui échoue si un identifiant apparaît dans deux splits ; un second qui recalcule la métrique sous GroupKFold."},
+ specimen:{url:"https://github.com/sunlabuiuc/PyHealth/pull/1187", text:"PyHealth #1187 — PTB-XL ECG: one patient, several records; a patient-disjoint check added to split_by_strat_fold."},
+ refs:["kapoor2023","kaufman2012","roberts2021"]},
+{id:"SF-02", latin:"Signum in signis", family:"data", detect:"manual",
+ en:{name:"Target information inside the features", habitat:"Feature pipelines that aggregate history up to 'now' when 'now' includes the event being predicted.",
+  symptom:"Near-perfect scores on one task that nobody can reproduce prospectively.",
+  mechanism:"The last element of the history equals the label, or a feature is computed after the prediction time.",
+  detection:"For each sample, assert that every feature timestamp is strictly before the prediction time and that the label value is absent from the feature set.",
+  test:"A synthetic patient whose only predictive signal is the label itself; the model must score at chance."},
+ fr:{name:"Information de la cible dans les variables", habitat:"Pipelines qui agrègent l'historique « jusqu'à maintenant » quand « maintenant » inclut l'événement à prédire.",
+  symptom:"Des scores presque parfaits qu'aucune évaluation prospective ne reproduit.",
+  mechanism:"Le dernier élément de l'historique est l'étiquette, ou une variable est calculée après l'instant de prédiction.",
+  detection:"Pour chaque échantillon, vérifier que chaque horodatage de variable précède strictement l'instant de prédiction et que la valeur de l'étiquette est absente des variables.",
+  test:"Un patient synthétique dont le seul signal prédictif est l'étiquette ; le modèle doit être au hasard."},
+ specimen:{url:"https://github.com/sunlabuiuc/PyHealth/pull/1203", text:"PyHealth #1203 — OMOP drug recommendation: the current visit's drugs were in the history; the last history entry equalled the target."},
+ refs:["kaufman2012","kapoor2023"]},
+{id:"SF-03", latin:"Negativa ex probatione", family:"data", detect:"manual",
+ en:{name:"Negatives sampled from the evaluation set", habitat:"Link prediction, retrieval, contrastive training: anywhere negatives are drawn from 'all' items.",
+  symptom:"Ranking metrics that improve when the evaluation set grows.",
+  mechanism:"Sampling negatives from the full graph tells the model which held-out edges are absent, i.e. the evaluation structure.",
+  detection:"Trace the sampler's source; assert it reads training triples only.",
+  test:"Count evaluation triples ever returned as training negatives; the count must be zero."},
+ fr:{name:"Négatifs tirés du jeu d'évaluation", habitat:"Prédiction de liens, recherche, apprentissage contrastif : partout où les négatifs sont tirés de « tous » les éléments.",
+  symptom:"Des métriques de classement qui s'améliorent quand le jeu d'évaluation grossit.",
+  mechanism:"Tirer les négatifs du graphe complet révèle au modèle quelles arêtes retenues sont absentes : la structure de l'évaluation.",
+  detection:"Tracer la source de l'échantillonneur ; vérifier qu'il ne lit que les triplets d'entraînement.",
+  test:"Compter les triplets d'évaluation jamais renvoyés comme négatifs d'entraînement ; zéro attendu."},
+ specimen:{url:"https://github.com/sunlabuiuc/PyHealth/pull/1202", text:"PyHealth #1202 — knowledge-graph embeddings: training negatives drawn from training triples only."},
+ refs:["kapoor2023"]},
+{id:"SF-04", latin:"Clavis non iniectiva", family:"data", detect:"static",
+ en:{name:"Non-injective or unstable cache key", habitat:"Any cache, fingerprint or memo keyed on a serialised configuration (json.dumps with default=str, repr of objects, str of arrays).",
+  symptom:"Two different configurations read the same cache; the same configuration misses its own cache on another machine.",
+  mechanism:"str() truncates arrays past 1000 elements, embeds memory addresses, and set ordering depends on the hash seed: the key is neither injective nor stable.",
+  detection:"Grep for default=str in dumps calls near hashlib/cache; build keys twice in two processes and compare.",
+  test:"Two configs differing only in a long array must give different keys; one config must give the same key under two PYTHONHASHSEED values."},
+ fr:{name:"Clé de cache non injective ou instable", habitat:"Tout cache, empreinte ou mémo indexé par une configuration sérialisée (json.dumps avec default=str, repr d'objets, str de tableaux).",
+  symptom:"Deux configurations différentes lisent le même cache ; la même configuration rate son propre cache sur une autre machine.",
+  mechanism:"str() tronque les tableaux au-delà de 1000 éléments, inclut des adresses mémoire, et l'ordre des ensembles dépend de la graine de hachage : la clé n'est ni injective ni stable.",
+  detection:"Chercher default=str dans les dumps près de hashlib/cache ; construire la clé deux fois dans deux processus et comparer.",
+  test:"Deux configs ne différant que par un long tableau doivent donner deux clés ; une config doit donner la même clé sous deux PYTHONHASHSEED."},
+ specimen:{url:"https://github.com/sunlabuiuc/PyHealth/pull/1207", text:"PyHealth #1207 — set_task cache key from json.dumps(vars(task), default=str); replaced by an explicit canonicaliser that raises on unknown types."},
+ refs:["pineau2021"]},
+{id:"SF-05", latin:"Assertio semper vera", family:"control-flow", detect:"static",
+ en:{name:"Assertion that cannot fail", habitat:"assert statements written with a message in place of the condition: assert f\"…\", assert (cond, \"msg\").",
+  symptom:"A documented failure mode that nobody has ever seen fire.",
+  mechanism:"A non-empty string or a tuple is always truthy. Under python -O the statement vanishes entirely.",
+  detection:"AST: Assert whose test is a Constant string, a JoinedStr or a Tuple.",
+  test:"A test that enters the guarded branch with invalid input and expects the failure."},
+ fr:{name:"Assertion qui ne peut pas échouer", habitat:"Des assert écrits avec un message à la place de la condition : assert f\"…\", assert (cond, \"msg\").",
+  symptom:"Un mode d'échec documenté que personne n'a jamais vu se déclencher.",
+  mechanism:"Une chaîne non vide ou un tuple est toujours vrai. Sous python -O, l'instruction disparaît.",
+  detection:"AST : Assert dont le test est une chaîne constante, une f-string ou un tuple.",
+  test:"Un test qui entre dans la branche gardée avec une entrée invalide et attend l'échec."},
+ specimen:{url:"https://github.com/pytorch/executorch/pull/22373", text:"ExecuTorch #22373 — assert f\"Unsupported … axis {axis}\" in the XNNPACK node visitor could never fire."},
+ refs:[]},
+{id:"SF-06", latin:"Exceptio non iacta", family:"control-flow", detect:"static",
+ en:{name:"Exception constructed but never raised", habitat:"Validation code: if bad: ValueError(\"…\") with the raise forgotten; stub methods: NotImplementedError(\"…\") as a statement.",
+  symptom:"Invalid input is accepted silently; a stub returns None and the caller proceeds with it.",
+  mechanism:"The exception object is created and discarded; control flow continues.",
+  detection:"AST: an expression statement whose value is a call to an exception class.",
+  test:"pytest.raises on the documented failure; the test fails on the current code."},
+ fr:{name:"Exception construite mais jamais levée", habitat:"Code de validation : if bad: ValueError(\"…\") sans raise ; méthodes à implémenter : NotImplementedError(\"…\") en instruction.",
+  symptom:"Une entrée invalide est acceptée en silence ; un stub renvoie None et l'appelant continue avec.",
+  mechanism:"L'objet exception est créé puis abandonné ; le flot continue.",
+  detection:"AST : une instruction-expression dont la valeur est un appel à une classe d'exception.",
+  test:"pytest.raises sur l'échec documenté ; le test échoue sur le code actuel."},
+ specimen:{url:"https://github.com/pytorch/executorch/pull/22373", text:"ExecuTorch #22373 — RuntimeError(\"Weight of 1d conv should be constant…\") built and dropped in the Samsung conv1d pass. Radar run of 2026-10-20: seven more sites of this class in python-neo core (unit checks on Epoch, Event, SpikeTrain)."},
+ refs:[]},
+{id:"SF-07", latin:"Index viridis fallax", family:"build-ci", detect:"static",
+ en:{name:"CI step that stays green on failure", habitat:"Shell steps that capture a command in a substitution: echo \"k=$(cmd)\" >> $GITHUB_OUTPUT; pipes without pipefail; continue-on-error; || true.",
+  symptom:"A cache key, a version or a hash that is sometimes empty; downstream jobs quietly use a degraded value.",
+  mechanism:"The step's exit status is the last command's (echo), not the one that failed inside $(…).",
+  detection:"Regex on workflow files; read the step logs for empty outputs.",
+  test:"Point the inner command at an unreachable host in a test workflow: the step must go red."},
+ fr:{name:"Étape de CI verte sur échec", habitat:"Étapes shell qui capturent une commande par substitution : echo \"k=$(cmd)\" >> $GITHUB_OUTPUT ; tubes sans pipefail ; continue-on-error ; || true.",
+  symptom:"Une clé de cache, une version ou un hash parfois vides ; les jobs en aval utilisent une valeur dégradée sans bruit.",
+  mechanism:"Le statut de sortie de l'étape est celui de la dernière commande (echo), pas de celle qui a échoué dans $(…).",
+  detection:"Expression régulière sur les fichiers de workflow ; lire les logs pour repérer des sorties vides.",
+  test:"Pointer la commande interne vers un hôte injoignable dans un workflow de test : l'étape doit passer au rouge."},
+ specimen:{url:"https://github.com/NeuralEnsemble/python-neo/pull/1912", text:"python-neo #1912 — the dataset-hash step stayed green on HTTP 403; 9 io-test runs and 12 cron runs had used the key Linux-datasets-."},
+ refs:[]},
+{id:"SF-08", latin:"Typus amissus", family:"numerics", detect:"static",
+ en:{name:"dtype dropped when lifting a scalar", habitat:"Graph transforms and quantizers that turn Python scalars into tensors: torch.tensor(float(x)).",
+  symptom:"Integer operands become float32; indexing or masking downstream fails or changes meaning.",
+  mechanism:"The conversion fixes the dtype to the default float instead of the node's recorded dtype.",
+  detection:"Regex on torch.tensor(float( / int(; check meta['val'].dtype is used.",
+  test:"An int64 add used as an index must stay int64 after the transform."},
+ fr:{name:"dtype perdu en promouvant un scalaire", habitat:"Transformations de graphe et quantizers qui convertissent des scalaires Python en tenseurs : torch.tensor(float(x)).",
+  symptom:"Des opérandes entiers deviennent float32 ; l'indexation ou le masquage en aval échoue ou change de sens.",
+  mechanism:"La conversion fixe le dtype au flottant par défaut au lieu du dtype enregistré sur le nœud.",
+  detection:"Regex sur torch.tensor(float( / int( ; vérifier l'usage de meta['val'].dtype.",
+  test:"Un add int64 utilisé comme indice doit rester int64 après la transformation."},
+ specimen:{url:"https://github.com/pytorch/executorch/pull/22372", text:"ExecuTorch #22372 — Vulkan quantizer lifted integer scalars as float32; a bare VulkanQuantizer() hit it unconditionally."},
+ refs:["goldberg1991"]},
+{id:"SF-09", latin:"Mutatio in umbra", family:"data", detect:"static",
+ en:{name:"In-place mutation of a view that may be read-only", habitat:"Code that takes .values or .to_numpy() from a DataFrame and writes into the array (or into views derived from it) to update the frame.",
+  symptom:"Under pandas ≥ 3 (Copy-on-Write) the write raises, or the frame silently stops reflecting the update.",
+  mechanism:"The array is a read-only view; in-place semantics that held for years no longer hold.",
+  detection:"Taint: variables assigned from .values/.to_numpy() without copy=True that are later subscript-assigned.",
+  test:"Run the suite with pandas 3 and pd.options.mode.copy_on_write = True."},
+ fr:{name:"Mutation en place d'une vue potentiellement en lecture seule", habitat:"Code qui prend .values ou .to_numpy() d'un DataFrame et écrit dans le tableau (ou dans des vues dérivées) pour mettre la table à jour.",
+  symptom:"Sous pandas ≥ 3 (Copy-on-Write) l'écriture lève, ou la table cesse en silence de refléter la mise à jour.",
+  mechanism:"Le tableau est une vue en lecture seule ; la sémantique en place qui tenait depuis des années ne tient plus.",
+  detection:"Teinte : variables issues de .values/.to_numpy() sans copy=True puis affectées par indexation.",
+  test:"Exécuter la suite avec pandas 3 et pd.options.mode.copy_on_write = True."},
+ specimen:{url:"https://github.com/DeepLabCut/DeepLabCut/pull/3445", text:"DeepLabCut #3445 — ten in-place writes across eight modules made safe; \"definitely correct and very helpful!\""},
+ refs:[]},
+{id:"SF-10", latin:"Alea sine semine", family:"data", detect:"heuristic",
+ en:{name:"Unseeded randomness on the evaluation path", habitat:"Splits, bootstrap, dropout at eval, sampling in metrics, any np.random / random / torch.rand without an explicit Generator.",
+  symptom:"The same command gives a different number each run; regressions hide inside the noise.",
+  mechanism:"Global RNG state depends on call order and on everything imported before.",
+  detection:"Grep for global RNG calls in files with no seed/Generator; run twice, diff.",
+  test:"Two runs with the same seed must be bitwise identical; a run with a different seed must differ (to prove the seed is used)."},
+ fr:{name:"Aléa non graine sur le chemin d'évaluation", habitat:"Découpages, bootstrap, dropout à l'évaluation, échantillonnage dans les métriques, tout np.random / random / torch.rand sans Generator explicite.",
+  symptom:"La même commande donne un chiffre différent à chaque exécution ; les régressions se cachent dans le bruit.",
+  mechanism:"L'état global du générateur dépend de l'ordre des appels et de tout ce qui a été importé avant.",
+  detection:"Chercher les appels au générateur global dans les fichiers sans seed/Generator ; exécuter deux fois, comparer.",
+  test:"Deux exécutions à même graine doivent être identiques bit à bit ; une graine différente doit changer le résultat (preuve que la graine est utilisée)."},
+ specimen:{url:"https://github.com/AxelNoun/kinoscope", text:"kinoscope — global deterministic seeding tested bit-for-bit, partition sizes locked across seeds."},
+ refs:["pineau2021","lones2021"]},
+{id:"SF-11", latin:"Ordo permutatus", family:"data", detect:"manual",
+ en:{name:"Parameter order coupled across libraries", habitat:"Any positional hand-off of parameter vectors between two code bases (model ↔ simulator, config ↔ kernel, schema ↔ loader).",
+  symptom:"Fitting works, predictions are wrong; or results are plausible but systematically shifted.",
+  mechanism:"Each side has its own canonical order; nothing checks they agree.",
+  detection:"Compare the two orders from the two sources of truth, for every pair, in a test.",
+  test:"A registry-driven test over all model/likelihood pairs; simulate with the fitted parameters and compare summary statistics."},
+ fr:{name:"Ordre de paramètres couplé entre bibliothèques", habitat:"Tout passage positionnel de vecteurs de paramètres entre deux bases de code (modèle ↔ simulateur, config ↔ kernel, schéma ↔ chargeur).",
+  symptom:"L'ajustement fonctionne, les prédictions sont fausses ; ou des résultats plausibles mais systématiquement décalés.",
+  mechanism:"Chaque côté a son ordre canonique ; rien ne vérifie qu'ils coïncident.",
+  detection:"Comparer les deux ordres issus des deux sources de vérité, pour chaque paire, dans un test.",
+  test:"Un test piloté par le registre sur toutes les paires modèle/vraisemblance ; simuler avec les paramètres ajustés et comparer les statistiques."},
+ specimen:{url:"https://github.com/lnccbrown/HSSM/pull/1371", text:"HSSM #1371 — (A, b, v0, v1, v2, t) vs (v0, v1, v2, A, b, t): mean RT 0.88 s instead of 0.337 s in predictive draws; fixed with a test over 21 pairs."},
+ refs:[]},
+{id:"SF-12", latin:"Murus sine claustro", family:"concurrency", detect:"static",
+ en:{name:"Shared-memory exchange without a fencing barrier", habitat:"GPU kernels that reuse one threadgroup/shared buffer for successive reductions; barriers written with mem_none or omitted between write and read.",
+  symptom:"Intermittent, load-dependent wrong values; results differ between runs on identical inputs.",
+  mechanism:"The barrier orders execution but not memory; a fast thread reads the previous exchange.",
+  detection:"Regex on barrier flags; many-run determinism test under load.",
+  test:"N identical launches must be bitwise identical; stress with concurrent streams."},
+ fr:{name:"Échange en mémoire partagée sans barrière", habitat:"Kernels GPU qui réutilisent un tampon threadgroup/partagé pour des réductions successives ; barrières écrites avec mem_none ou omises entre écriture et lecture.",
+  symptom:"Valeurs fausses intermittentes, dépendantes de la charge ; résultats différents d'une exécution à l'autre sur les mêmes entrées.",
+  mechanism:"La barrière ordonne l'exécution mais pas la mémoire ; un thread rapide lit l'échange précédent.",
+  detection:"Regex sur les drapeaux de barrière ; test de déterminisme sur de nombreuses exécutions sous charge.",
+  test:"N lancements identiques doivent être identiques bit à bit ; stresser avec des flux concurrents."},
+ specimen:{url:"https://github.com/ml-explore/mlx-lm/pull/1719", text:"mlx-lm #1719 — fused Metal KL/JS kernels: 50/50 nondeterministic runs → 0/50; reproduced independently on M5 Max (26/50 → 0/50)."},
+ refs:["metal"]},
+{id:"SF-13", latin:"Celeritas sine finibus", family:"numerics", detect:"heuristic",
+ en:{name:"Fast-math transcendental on an unbounded argument", habitat:"Kernels using fast::exp / fast::log, log(1+exp(x)), exp(a−b) without clamping.",
+  symptom:"Overflow to ±inf or NaN at large logit scales; training diverges on some batches only.",
+  mechanism:"Fast variants trade range for speed; the argument is not bounded by construction.",
+  detection:"Regex on fast:: calls; audit the argument's range analytically.",
+  test:"Compare against float64 at logit scale 20 and beyond."},
+ fr:{name:"Fonction fast-math sur un argument non borné", habitat:"Kernels utilisant fast::exp / fast::log, log(1+exp(x)), exp(a−b) sans borne.",
+  symptom:"Débordement vers ±inf ou NaN aux grandes échelles de logits ; l'entraînement diverge sur certains lots seulement.",
+  mechanism:"Les variantes rapides échangent la plage contre la vitesse ; l'argument n'est pas borné par construction.",
+  detection:"Regex sur les appels fast:: ; analyser la plage de l'argument.",
+  test:"Comparer à float64 à l'échelle de logits 20 et au-delà."},
+ specimen:{url:"https://github.com/ml-explore/mlx-lm/pull/1719", text:"mlx-lm #1719 — log(1+exp(d)) overflowed deterministically at logit scale 20; replaced by a stable softplus."},
+ refs:["goldberg1991"]},
+{id:"SF-14", latin:"Symbolum subrogatum", family:"codegen", detect:"manual",
+ en:{name:"Wrong symbol substituted in generated code", habitat:"Templates (Cython, C++, CUDA, SQL) where a variable name is close to another: p and P, n and N, x and X.",
+  symptom:"Correct results on half the parameter space; a bias that is never caught because the tests cover the other half.",
+  mechanism:"The template substitutes the wrong one; the generated code compiles and runs.",
+  detection:"Diff the template against the algorithm's reference formula symbol by symbol; test on both halves of the domain.",
+  test:"Compare sampled distributions to the exact pmf/pdf across the parameter space."},
+ fr:{name:"Mauvais symbole substitué dans du code généré", habitat:"Templates (Cython, C++, CUDA, SQL) où un nom de variable ressemble à un autre : p et P, n et N, x et X.",
+  symptom:"Résultats corrects sur la moitié de l'espace des paramètres ; un biais jamais vu parce que les tests couvrent l'autre moitié.",
+  mechanism:"Le template substitue le mauvais symbole ; le code généré compile et s'exécute.",
+  detection:"Comparer le template à la formule de référence symbole par symbole ; tester les deux moitiés du domaine.",
+  test:"Comparer les distributions échantillonnées à la pmf/pdf exacte sur tout l'espace des paramètres."},
+ specimen:{url:"https://github.com/brian-team/brian2/pull/1891", text:"Brian2 #1891 — the Cython Binomial template used p where the inversion algorithm needs P = min(p, 1−p): mean 9.11 instead of 8 for n = 10, p = 0.8, for years."},
+ refs:[]},
+{id:"SF-15", latin:"Constans truncata", family:"codegen", detect:"heuristic",
+ en:{name:"Constant rounded by its printed precision", habitat:"Code generators that print floats with %.15g or :.15f; configuration dumps re-read as source.",
+  symptom:"A quantity that should be tiny becomes exactly zero; a loop that should end never does.",
+  mechanism:"15 significant digits do not round-trip a double; repr() does.",
+  detection:"Regex on fixed-precision formats in generator code.",
+  test:"The generated constant must round-trip: float(printed) == original."},
+ fr:{name:"Constante arrondie par sa précision d'impression", habitat:"Générateurs de code qui impriment des flottants avec %.15g ou :.15f ; dumps de configuration relus comme source.",
+  symptom:"Une quantité qui devrait être minuscule devient exactement zéro ; une boucle qui devrait finir ne finit jamais.",
+  mechanism:"15 chiffres significatifs ne font pas l'aller-retour d'un double ; repr() le fait.",
+  detection:"Regex sur les formats à précision fixe dans le code générateur.",
+  test:"La constante générée doit faire l'aller-retour : float(imprimé) == original."},
+ specimen:{url:"https://github.com/brian-team/brian2/pull/1891", text:"Brian2 #1891 — constants with 15 decimals rounded (1−P)^n to zero; the generated sampling loop never terminated."},
+ refs:["goldberg1991"]},
+{id:"SF-16", latin:"Index in vacuum", family:"concurrency", detect:"manual",
+ en:{name:"Dangling pointer into a refilled buffer", habitat:"State save/restore around buffered generators (RNG buffers, I/O chunks) in C/Cython; any raw pointer kept across a refill.",
+  symptom:"Restored state yields wrong values; occasionally a double free or a crash much later.",
+  mechanism:"The saved pointer targets memory the refill freed or rewrote.",
+  detection:"Audit every raw pointer stored across a call that may reallocate; prefer copying the data.",
+  test:"Save, force a refill, restore, compare against a fresh generator with the same seed."},
+ fr:{name:"Pointeur pendant vers un tampon rempli à nouveau", habitat:"Sauvegarde/restauration d'état autour de générateurs à tampon (RNG, I/O) en C/Cython ; tout pointeur brut conservé au-delà d'un remplissage.",
+  symptom:"L'état restauré produit des valeurs fausses ; parfois un double free ou un plantage bien plus tard.",
+  mechanism:"Le pointeur sauvé vise une mémoire que le remplissage a libérée ou réécrite.",
+  detection:"Auditer chaque pointeur brut conservé au-delà d'un appel pouvant réallouer ; préférer la copie.",
+  test:"Sauver, forcer un remplissage, restaurer, comparer à un générateur neuf de même graine."},
+ specimen:{url:"https://github.com/brian-team/brian2/issues/1893", text:"Brian2 #1893 — get_random_state copied a raw pointer to a 20,000-number buffer; \"I agree with the analysis and the proposed solution.\""},
+ refs:[]},
+{id:"SF-17", latin:"Numerus angustus", family:"numerics", detect:"manual",
+ en:{name:"Narrow integer offset in a vectorized kernel", habitat:"Vectorized CPU/GPU kernels where offsets are computed in the input's element width (int16 for fp16/bf16).",
+  symptom:"Correct results for small tensors; wrong values, NaN or out-of-bounds reads past a size threshold.",
+  mechanism:"The offset type wraps at 32,767; the gather lands elsewhere.",
+  detection:"Read the offset type in the kernel; test at sizes above 2^15 elements per row.",
+  test:"Compare fp16/bf16 output against fp32 on a 256×256 grid; gradients too."},
+ fr:{name:"Offset entier étroit dans un kernel vectorisé", habitat:"Kernels CPU/GPU vectorisés où les offsets sont calculés dans la largeur de l'élément d'entrée (int16 pour fp16/bf16).",
+  symptom:"Résultats corrects sur de petits tenseurs ; valeurs fausses, NaN ou lectures hors bornes au-delà d'un seuil de taille.",
+  mechanism:"Le type de l'offset déborde à 32 767 ; le gather atterrit ailleurs.",
+  detection:"Lire le type de l'offset dans le kernel ; tester au-delà de 2^15 éléments par ligne.",
+  test:"Comparer la sortie fp16/bf16 à fp32 sur une grille 256×256 ; les gradients aussi."},
+ specimen:{url:"https://github.com/pytorch/pytorch/issues/200949", text:"PyTorch #200949 — grid_sample on CPU, int16 offsets for fp16/bf16; labelled \"module: correctness (silent)\". ExecuTorch #23798 approved as the downstream fix."},
+ refs:[]},
+{id:"SF-18", latin:"Exceptio devorata", family:"control-flow", detect:"static",
+ en:{name:"Exception swallowed", habitat:"except: pass, except Exception: continue around I/O, parsing, optional dependencies.",
+  symptom:"Missing records, partial datasets, silently skipped files; totals that do not add up.",
+  mechanism:"The failure that would have told you the result is wrong is discarded.",
+  detection:"AST: broad handlers whose body only passes or continues.",
+  test:"Inject one corrupt input; the pipeline must report it, not shrink."},
+ fr:{name:"Exception avalée", habitat:"except: pass, except Exception: continue autour d'I/O, de parsing, de dépendances optionnelles.",
+  symptom:"Enregistrements manquants, jeux partiels, fichiers sautés en silence ; des totaux qui ne tombent pas juste.",
+  mechanism:"L'échec qui aurait signalé le résultat faux est jeté.",
+  detection:"AST : gestionnaires larges dont le corps ne fait que pass ou continue.",
+  test:"Injecter une entrée corrompue ; le pipeline doit le signaler, pas rétrécir."},
+ specimen:{url:"https://github.com/sunlabuiuc/PyHealth/pull/1174", text:"PyHealth #1174 (review) — bare excepts in dataset loading; keep the broad catch only where a warning is emitted."},
+ refs:["lones2021"]},
+{id:"SF-19", latin:"Status communis", family:"data", detect:"static",
+ en:{name:"Aliased mutable state across samples", habitat:"Sample builders that reuse a list or dict object across samples; mutable default arguments.",
+  symptom:"Editing one sample edits others; metrics change with iteration order.",
+  mechanism:"Two samples point to the same object; mutation is shared.",
+  detection:"AST: mutable defaults; runtime: id() equality across samples.",
+  test:"Build two samples, mutate one, assert the other is unchanged."},
+ fr:{name:"État mutable partagé entre échantillons", habitat:"Constructeurs d'échantillons qui réutilisent une liste ou un dict ; arguments par défaut mutables.",
+  symptom:"Modifier un échantillon en modifie d'autres ; les métriques changent avec l'ordre d'itération.",
+  mechanism:"Deux échantillons pointent le même objet ; la mutation est partagée.",
+  detection:"AST : défauts mutables ; à l'exécution : égalité des id() entre échantillons.",
+  test:"Construire deux échantillons, modifier l'un, vérifier que l'autre est inchangé."},
+ specimen:{url:"https://github.com/sunlabuiuc/PyHealth/pull/1203", text:"PyHealth #1203 — nested history lists shared between samples; fixed by copying."},
+ refs:[]},
+{id:"SF-20", latin:"Testis caecus", family:"control-flow", detect:"manual",
+ en:{name:"Test that cannot detect its own regression", habitat:"Tests built on mocks of the very path under test; fixtures that never exercise the production code path.",
+  symptom:"A green test suite over a bug that is plainly present.",
+  mechanism:"The test asserts on the mock, not on the behaviour.",
+  detection:"Re-introduce the bug (mutation) and watch the test: if it stays green, it is blind.",
+  test:"Mutation testing on the critical path; one discriminating fixture that runs the real set_task/evaluate."},
+ fr:{name:"Test incapable de détecter sa régression", habitat:"Tests construits sur des mocks du chemin même qu'ils testent ; fixtures qui n'exercent jamais le code de production.",
+  symptom:"Une suite verte au-dessus d'un bug manifeste.",
+  mechanism:"Le test vérifie le mock, pas le comportement.",
+  detection:"Réintroduire le bug (mutation) et regarder le test : s'il reste vert, il est aveugle.",
+  test:"Tests par mutation sur le chemin critique ; une fixture discriminante qui exécute le vrai set_task/evaluate."},
+ specimen:{url:"https://github.com/sunlabuiuc/PyHealth/pull/1203", text:"PyHealth #1203 — the leakage test mocked exactly the path it should exercise; re-introducing the leak kept it green."},
+ refs:["pineau2021"]},
+];
+const REFS = {
+ kapoor2023:{t:"Kapoor & Narayanan (2023). Leakage and the reproducibility crisis in machine-learning-based science. Patterns 4(9).", u:"https://doi.org/10.1016/j.patter.2023.100804"},
+ kaufman2012:{t:"Kaufman, Rosset, Perlich & Stitelman (2012). Leakage in data mining: formulation, detection, and avoidance. ACM TKDD 6(4).", u:"https://doi.org/10.1145/2382577.2382579"},
+ lones2021:{t:"Lones (2021). How to avoid machine learning pitfalls: a guide for academic researchers. arXiv:2108.02497.", u:"https://arxiv.org/abs/2108.02497"},
+ pineau2021:{t:"Pineau et al. (2021). Improving reproducibility in machine learning research. JMLR 22(164).", u:"https://jmlr.org/papers/v22/20-303.html"},
+ roberts2021:{t:"Roberts et al. (2021). Common pitfalls and recommendations for using machine learning to detect and prognosticate for COVID-19. Nature Machine Intelligence 3.", u:"https://doi.org/10.1038/s42256-021-00307-0"},
+ goldberg1991:{t:"Goldberg (1991). What every computer scientist should know about floating-point arithmetic. ACM Computing Surveys 23(1).", u:"https://doi.org/10.1145/103162.103163"},
+ metal:{t:"Apple. Metal Shading Language Specification — synchronization and SIMD-group functions (threadgroup_barrier, mem_flags).", u:"https://developer.apple.com/metal/Metal-Shading-Language-Specification.pdf"},
+};
+
+</script>
+<script>
+(() => {
+  const LABELS = {
+    en: {habitat:"Where it hides", symptom:"Symptom", mechanism:"Mechanism", detection:"Detection", test:"Test to add", specimen:"Specimen", refs:"References"},
+    fr: {habitat:"Où il se cache", symptom:"Symptôme", mechanism:"Mécanisme", detection:"Détection", test:"Test à ajouter", specimen:"Spécimen", refs:"Références"},
+  };
+  const FAM = {en:{}, fr:{"data":"données","numerics":"numérique","concurrency":"concurrence","control-flow":"flot de contrôle","build-ci":"build-ci","codegen":"génération de code"}};
+  const DET = {en:{static:"static detector", heuristic:"heuristic", manual:"manual review"}, fr:{static:"détecteur statique", heuristic:"heuristique", manual:"revue manuelle"}};
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  let lang = "en", fam = "all";
+  const plates = document.getElementById("plates");
+  function render() {
+    const L = LABELS[lang];
+    plates.innerHTML = ENTRIES.filter(e => fam === "all" || e.family === fam).map(e => {
+      const t = e[lang];
+      const refs = (e.refs || []).map(k => REFS[k]).filter(Boolean).map(r => `<a href="${esc(r.u)}" target="_blank" rel="noopener">${esc(r.t)}</a>`).join(" · ");
+      return `<article class="plate" id="${e.id}">
+        <div class="rail">
+          <div class="num mono">${esc(e.id)}</div>
+          <div class="latin">${esc(e.latin)}</div>
+          <div class="chips"><span class="chip">${esc(FAM[lang][e.family] || e.family)}</span><span class="chip detect-${esc(e.detect)}">${esc(DET[lang][e.detect])}</span></div>
+        </div>
+        <div>
+          <h2>${esc(t.name)}</h2>
+          <dl class="fields">
+            <div class="field"><dt>${L.habitat}</dt><dd>${esc(t.habitat)}</dd></div>
+            <div class="field symptom"><dt>${L.symptom}</dt><dd>${esc(t.symptom)}</dd></div>
+            <div class="field"><dt>${L.mechanism}</dt><dd>${esc(t.mechanism)}</dd></div>
+            <div class="field"><dt>${L.detection}</dt><dd>${esc(t.detection)}</dd></div>
+            <div class="field"><dt>${L.test}</dt><dd>${esc(t.test)}</dd></div>
+          </dl>
+          <div class="specimen"><b>${L.specimen}</b><a href="${esc(e.specimen.url)}" target="_blank" rel="noopener">${esc(e.specimen.text)}</a></div>
+          ${refs ? `<div class="refs"><b>${L.refs}:</b> ${refs}</div>` : ""}
+        </div>
+      </article>`;
+    }).join("");
+  }
+  function setLang(l) {
+    lang = l;
+    document.documentElement.lang = l;
+    document.querySelectorAll("[data-en]").forEach(el => { const v = el.getAttribute("data-" + l); if (v != null) el.textContent = v; });
+    document.getElementById("l-en").setAttribute("aria-pressed", String(l === "en"));
+    document.getElementById("l-fr").setAttribute("aria-pressed", String(l === "fr"));
+    try { localStorage.setItem("sfr-lang", l); } catch (e) {}
+    render();
+  }
+  document.getElementById("l-en").addEventListener("click", () => setLang("en"));
+  document.getElementById("l-fr").addEventListener("click", () => setLang("fr"));
+  document.querySelectorAll(".filters button").forEach(b => b.addEventListener("click", () => {
+    fam = b.dataset.f;
+    document.querySelectorAll(".filters button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    render();
+  }));
+  let initial = "en";
+  try { initial = localStorage.getItem("sfr-lang") || initial; } catch (e) {}
+  if (location.hash === "#fr") initial = "fr";
+  setLang(initial);
+  if (/^#SF-\d\d$/.test(location.hash)) { const el = document.getElementById(location.hash.slice(1)); if (el) el.scrollIntoView(); }
+})();
+</script>

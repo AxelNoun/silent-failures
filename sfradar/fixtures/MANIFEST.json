@@ -1,0 +1,112 @@
+{
+ "note": "Each fixture is a third-party file at a pinned commit; fetch.py downloads it and verifies the git blob SHA-1. 'before' = commit before the fix (or current upstream when the fix is open); 'after' = the merged fix.",
+ "fixtures": [
+  {
+   "id": "SF-05",
+   "file": "executorch_node_visitor.py",
+   "path": "backends/xnnpack/operators/node_visitor.py",
+   "specimen": "pytorch/executorch#22373",
+   "before": {
+    "repo": "pytorch/executorch",
+    "commit": "d29706ab8cf7de53e566271fa33e91876f321789",
+    "blob": "160ee03c76562137c63078f69c1228ad635b617d"
+   },
+   "after": {
+    "repo": "pytorch/executorch",
+    "commit": "70dc772b8c0040a5b841557e5b44555d438c08c5",
+    "blob": "1963e4494fd9acb5abffe313d705ed8f66322142"
+   }
+  },
+  {
+   "id": "SF-06",
+   "file": "executorch_conv1d_to_conv2d.py",
+   "path": "backends/samsung/_passes/conv1d_to_conv2d.py",
+   "specimen": "pytorch/executorch#22373",
+   "before": {
+    "repo": "pytorch/executorch",
+    "commit": "914cf7e97ba89ab692daecef5836fc0c15bf395d",
+    "blob": "5a5daf70938aeb2101ae3e31a021496d4c3abb22"
+   },
+   "after": {
+    "repo": "pytorch/executorch",
+    "commit": "70dc772b8c0040a5b841557e5b44555d438c08c5",
+    "blob": "d59875022d35a2d96e34afb0dae4d4146eaaf9f1"
+   }
+  },
+  {
+   "id": "SF-08",
+   "file": "executorch_vulkan_quantizer_utils.py",
+   "path": "backends/vulkan/quantizer/vulkan_quantizer_utils.py",
+   "specimen": "pytorch/executorch#22372",
+   "before": {
+    "repo": "pytorch/executorch",
+    "commit": "21ab2eca6dd19db2c69b72543dcc1a64f01eeade",
+    "blob": "c0b6ab39e84c8f0c88eea2472d5dd325d24a1e36"
+   },
+   "after": {
+    "repo": "pytorch/executorch",
+    "commit": "89fcfe70387e724b61d8df1931be69bc14bfa828",
+    "blob": "a8e914b8ec06c1f86c1e561cfd3d49b58efdc153"
+   }
+  },
+  {
+   "id": "SF-07",
+   "file": "neo_io-test.yml",
+   "path": ".github/workflows/io-test.yml",
+   "specimen": "NeuralEnsemble/python-neo#1912",
+   "before": {
+    "repo": "NeuralEnsemble/python-neo",
+    "commit": "69c1dfa4de16ab367529a7284fbfed9a947564b7",
+    "blob": "341f9e5a3b846f9ba7dc8404b943bc3e6ae3afc0"
+   },
+   "after": {
+    "repo": "NeuralEnsemble/python-neo",
+    "commit": "45acbba88da9094e283435fe38222b06ab613dff",
+    "blob": "5815d3cd68d5f03250cbdbf4c9e62e525362040a"
+   }
+  },
+  {
+   "id": "SF-12",
+   "file": "mlxlm_losses.py",
+   "path": "mlx_lm/tuner/losses.py",
+   "specimen": "ml-explore/mlx-lm#1719 (closed; fix on the author's fork)",
+   "before": {
+    "repo": "ml-explore/mlx-lm",
+    "commit": "c316a43a8b35357a46a1274fd5675e3c5beacf1b",
+    "blob": "53c0a8dd1ee63cf654eee4b121d75662e7ae6994"
+   },
+   "after": {
+    "repo": "AxelNoun/mlx-lm",
+    "commit": "897c7e08ee1badef00b53a07519a1bf05b6b36ac",
+    "blob": "7933940292e142a0db12fe13d1e55bed279ca3d2"
+   }
+  },
+  {
+   "id": "SF-04",
+   "file": "pyhealth_base_dataset.py",
+   "path": "pyhealth/datasets/base_dataset.py",
+   "specimen": "sunlabuiuc/PyHealth#1207 (open)",
+   "before": {
+    "repo": "sunlabuiuc/PyHealth",
+    "commit": "b9845528fe85ed3afb614a10b1f0b8ba32ef1668",
+    "blob": "98ff1c12f13dbca6102bd52f3c643cf241fe8110"
+   }
+  },
+  {
+   "id": "SF-09",
+   "file": "dlc_tracklets.py",
+   "path": "deeplabcut/refine_training_dataset/tracklets.py",
+   "specimen": "DeepLabCut/DeepLabCut#3445",
+   "before": {
+    "repo": "DeepLabCut/DeepLabCut",
+    "commit": "1478bf909fcd73214407579abdd8e555b3d52ff5",
+    "blob": "4e07e02d0fa82f70a0a5caf04e8d44d46d66aac8"
+   },
+   "after": {
+    "repo": "DeepLabCut/DeepLabCut",
+    "commit": "18bc897c7ba688f949d8049361172c26d46ba7ba",
+    "blob": "9297268559c05c4931be2a2818720bfb6b949ac9"
+   }
+  }
+ ]
+}

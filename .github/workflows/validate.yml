@@ -1,0 +1,23 @@
+name: validate
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "17 6 * * 1"   # Mondays: the pinned fixtures must still resolve upstream
+jobs:
+  ground-truth:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Fetch ground-truth fixtures at pinned commits
+        run: python sfradar/fixtures/fetch.py
+      - name: Validate detectors against ground truth
+        run: python sfradar/tests/test_fixtures.py
+      - name: Page builds from entries.js and matches the committed index.html
+        run: |
+          cp index.html /tmp/index.committed.html
+          python registry/build.py
+          cmp index.html /tmp/index.committed.html

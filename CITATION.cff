@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use the registry or sfradar, please cite it as below."
+title: "Silent Failures Registry: a field guide to bugs that pass the tests and falsify the results in scientific and ML code"
+type: software
+authors:
+  - family-names: Coiffard-Donaty
+    given-names: Axel
+version: 0.1.0
+date-released: 2026-10-20
+url: "https://github.com/AxelNoun/silent-failures"
+license: MIT
+keywords:
+  - software testing
+  - scientific software
+  - machine learning evaluation
+  - static analysis
+  - silent failures
