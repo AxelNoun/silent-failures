@@ -16,6 +16,8 @@ jobs:
         run: python sfradar/fixtures/fetch.py
       - name: Validate detectors against ground truth
         run: python sfradar/tests/test_fixtures.py
+      - name: README and link-preview images were re-rendered after the last change to entries.js
+        run: python registry/images.py --check
       - name: Page builds from entries.js and matches the committed index.html
         run: |
           cp index.html /tmp/index.committed.html

@@ -1,0 +1,35 @@
+<!doctype html>
+<html data-theme="__THEME__"><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,600;0,8..60,700;1,8..60,500&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=block">
+<style>
+/*TOKENS*/
+/* README header: title plate and the drawer of the twenty classes (mark shape = detectability).
+   Transparent background, so the image sits on GitHub's light or dark page. */
+body { background: transparent; width: 880px; padding: 10px 4px 8px; }
+.plate { border-top: 3px solid var(--ink); padding-top: 14px; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: 46px; line-height: 1.02; margin: 6px 0 0; letter-spacing: -0.01em; }
+.sub { font-family: var(--font-display); font-style: italic; font-weight: 500; font-size: 20px; color: var(--ink-2); margin-top: 6px; }
+.drawer { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; margin-top: 18px; }
+.cell { display: flex; align-items: center; gap: 7px; border: 1px solid var(--rule); border-radius: 5px; padding: 7px 8px; }
+.cell .id { font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--accent); }
+.legend { display: flex; gap: 22px; margin-top: 10px; font-size: 13px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+</style></head>
+<body>
+<div class="plate">
+  <div class="label">A field guide to bugs that don't crash · Registre des défauts silencieux</div>
+  <h1>Silent Failures Registry</h1>
+  <div class="sub">Twenty ways scientific and ML code returns a wrong answer without raising an error.</div>
+  <div class="drawer" id="drawer"></div>
+  <div class="legend" id="legend"></div>
+</div>
+<script>
+/*DATA*/
+document.getElementById("drawer").innerHTML = REG.map(e => `<div class="cell"><i class="mk ${e.detect}"></i><span class="id">${e.id.replace("SF-", "")}</span></div>`).join("");
+const n = k => REG.filter(e => e.detect === k).length;
+document.getElementById("legend").innerHTML =
+  `<span><i class="mk static"></i>static detector · ${n("static")}</span>` +
+  `<span><i class="mk heuristic"></i>heuristic · ${n("heuristic")}</span>` +
+  `<span><i class="mk manual"></i>manual review · ${n("manual")}</span>`;
+</script>
+</body></html>

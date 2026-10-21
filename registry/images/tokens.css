@@ -1,0 +1,25 @@
+/* AxelNoun design-system tokens (claude.ai/design): the same names and values as ../template.html.
+   Copy of visuals/templates/tokens.css in the author's working folder; the theme is chosen by <html data-theme>. */
+:root, [data-theme="light"] {
+  --ground: #f5f6f2; --surface: #fdfdfb; --ink: #161b1f; --ink-2: #4f5a63; --rule: #d3d9d2; --rule-strong: #7f8a91;
+  --accent: #0f5c6e; --accent-soft: #e1eef0; --on-accent: #fdfdfb;
+  --fault: #a3372a; --fault-soft: #f5e4e0; --pass: #1d6a43; --pass-soft: #e1efe6; --pending: #7d5410; --pending-soft: #f4ead6;
+}
+[data-theme="dark"] {
+  --ground: #121618; --surface: #1a1f22; --ink: #e7eae9; --ink-2: #a3adb3; --rule: #2e363a; --rule-strong: #6a767d;
+  --accent: #7fc4d3; --accent-soft: #173237; --on-accent: #121618;
+  --fault: #f08f7d; --fault-soft: #3a2320; --pass: #72c79b; --pass-soft: #173022; --pending: #e2b866; --pending-soft: #33291a;
+}
+:root {
+  --font-display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", Consolas, "Courier New", monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font-family: var(--font-body); color: var(--ink); -webkit-font-smoothing: antialiased; }
+.label { font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+.mk { display: inline-block; width: 11px; height: 11px; border: 1.5px solid var(--accent); border-radius: 2px; flex: none; }
+.mk.static { background: var(--accent); }
+.mk.heuristic { background: linear-gradient(135deg, var(--accent) 50%, transparent 50%); }
+.mk.manual { border-color: var(--rule-strong); background: transparent; }

@@ -1,4 +1,9 @@
-# Silent Failures Registry · Registre des défauts silencieux
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/registry-dark.png">
+  <img alt="Silent Failures Registry · Registre des défauts silencieux. Twenty ways scientific and ML code returns a wrong answer without raising an error. Index of the twenty classes: nine with a static detector, four heuristic, seven for manual review." src="assets/registry-light.png" width="100%">
+</picture>
+
+[![validate](https://github.com/AxelNoun/silent-failures/actions/workflows/validate.yml/badge.svg)](https://github.com/AxelNoun/silent-failures/actions/workflows/validate.yml) — the ground-truth fixtures are re-fetched at pinned commits and the detectors re-validated on every push and every Monday.
 
 **A field guide to the bugs that pass the tests and falsify the results** — in scientific and machine-learning code. Twenty classes, each documented from a real, public specimen: the pull request where the pattern was found and fixed, the symptom, the mechanism, the test that would have caught it, and how to prevent it.
 
@@ -12,7 +17,8 @@
 | --- | --- |
 | `index.html` | the registry page (built, self-contained) |
 | `registry/entries.js` | the twenty entries — the single source of truth for the page |
-| `registry/template.html`, `registry/build.py` | page template and the one-line build |
+| `registry/template.html`, `registry/build.py` | page template and the build (`index.html` for GitHub Pages; `--fragment` for the bare page) |
+| `assets/`, `registry/images.py` | README header and link-preview images, rendered from `registry/entries.js` (`python registry/images.py`; CI checks they are current) |
 | `sfradar/` | **sfradar**, a dependency-free static radar for the thirteen classes that have a reliable pattern (AST + regex + taint tracking for pandas views), with its ground-truth validation |
 
 ## The twenty classes
@@ -34,7 +40,7 @@
 | SF-13 | Fast-math transcendental on an unbounded argument | heuristic | mlx-lm #1719 |
 | SF-14 | Wrong symbol substituted in generated code | manual | Brian2 #1891 |
 | SF-15 | Constant rounded by its printed precision | heuristic | Brian2 #1891 |
-| SF-16 | Dangling pointer into a refilled buffer | manual | Brian2 #1893 |
+| SF-16 | Dangling pointer into a refilled buffer | manual | Brian2 #1893 (fixed in #1896) |
 | SF-17 | Narrow integer offset in a vectorized kernel | manual | PyTorch #200949 |
 | SF-18 | Exception swallowed | static | PyHealth #1174 |
 | SF-19 | Aliased mutable state across samples | static | PyHealth #1203 |
