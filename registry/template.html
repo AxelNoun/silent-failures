@@ -1,96 +1,149 @@
 <title>Silent Failures Registry</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<!--pages-head-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A field guide to the bugs that pass the tests and falsify the results in scientific and ML code: twenty classes, each anchored to a public specimen. EN / FR.">
+<link rel="canonical" href="https://axelnoun.github.io/silent-failures/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Silent Failures Registry">
+<meta property="og:description" content="Twenty ways scientific and ML code returns a wrong answer without raising an error. Each class anchored to a public specimen.">
+<meta property="og:url" content="https://axelnoun.github.io/silent-failures/">
+<meta property="og:image" content="https://axelnoun.github.io/silent-failures/assets/social-preview.png">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="640">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='1.5' y='1.5' width='13' height='13' rx='2' fill='none' stroke='%230f5c6e' stroke-width='2'/%3E%3Cpath d='M1.5 1.5h13L1.5 14.5z' fill='%230f5c6e'/%3E%3C/svg%3E">
+<!--/pages-head-->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: a field guide. A title plate, a legend, then one specimen plate per entry: number and Latin plate name on a left rail, the description as a labelled card, the real specimen framed at the bottom. */
+/* Layout: a field guide. A title plate, an index of the twenty plates (the mark's shape encodes detectability), a legend, then one specimen plate per entry: number and Latin plate name on a left rail, the description as labelled fields, the real specimen as a museum label at the bottom.
+   Tokens follow the AxelNoun design system (claude.ai/design): same names and values as the portfolio. */
 :root {
-  --paper: #eef0ec;
-  --plate: #f8f9f6;
-  --ink: #141a1c;
-  --ink-2: #4b5660;
-  --rule: #cfd6d0;
-  --verdigris: #1f6b6e;
-  --verdigris-soft: #dceeee;
-  --mark: #b23a2a;
-  --mark-soft: #f3e1dd;
-  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --ground: #f5f6f2;
+  --surface: #fdfdfb;
+  --ink: #161b1f;
+  --ink-2: #4f5a63;
+  --rule: #d3d9d2;
+  --rule-strong: #7f8a91;
+  --accent: #0f5c6e;
+  --accent-soft: #e1eef0;
+  --on-accent: #fdfdfb;
+  --fault: #a3372a;
+  --fault-soft: #f5e4e0;
+  --font-display: "Source Serif 4", Georgia, "Times New Roman", serif;
   --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", Consolas, monospace;
+  --font-mono: "IBM Plex Mono", Consolas, "Courier New", monospace;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) { --paper: #111516; --plate: #191f21; --ink: #e9ecea; --ink-2: #a3adb3; --rule: #2d3639; --verdigris: #7fc9c9; --verdigris-soft: #163234; --mark: #ef8a7a; --mark-soft: #3b2220; color-scheme: dark; }
+  :root:not([data-theme="light"]) { --ground: #121618; --surface: #1a1f22; --ink: #e7eae9; --ink-2: #a3adb3; --rule: #2e363a; --rule-strong: #6a767d; --accent: #7fc4d3; --accent-soft: #173237; --on-accent: #121618; --fault: #f08f7d; --fault-soft: #3a2320; color-scheme: dark; }
 }
-:root[data-theme="dark"] { --paper: #111516; --plate: #191f21; --ink: #e9ecea; --ink-2: #a3adb3; --rule: #2d3639; --verdigris: #7fc9c9; --verdigris-soft: #163234; --mark: #ef8a7a; --mark-soft: #3b2220; color-scheme: dark; }
+:root[data-theme="dark"] { --ground: #121618; --surface: #1a1f22; --ink: #e7eae9; --ink-2: #a3adb3; --rule: #2e363a; --rule-strong: #6a767d; --accent: #7fc4d3; --accent-soft: #173237; --on-accent: #121618; --fault: #f08f7d; --fault-soft: #3a2320; color-scheme: dark; }
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.55; }
-a { color: var(--verdigris); text-decoration-thickness: 1px; text-underline-offset: 2px; }
-a:focus-visible, button:focus-visible { outline: 2px solid var(--verdigris); outline-offset: 2px; }
-.wrap { max-width: 900px; margin: 0 auto; padding-block: 28px 72px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.55; }
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+.wrap { max-width: 920px; margin: 0 auto; padding-block: 28px 72px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 h1, h2, h3 { font-family: var(--font-display); font-weight: 600; margin: 0; text-wrap: balance; line-height: 1.1; }
 .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.label { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
 .topline { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 13px; color: var(--ink-2); align-items: center; }
-.lang button, .filters button { background: none; border: 1px solid var(--rule); border-radius: 4px; padding: 4px 10px; color: var(--ink-2); cursor: pointer; font: inherit; font-size: 13px; }
-.lang button[aria-pressed="true"], .filters button[aria-pressed="true"] { background: var(--verdigris); color: var(--plate); border-color: var(--verdigris); }
-header.title-plate { margin-top: 36px; padding: 28px 0 24px; border-top: 3px solid var(--ink); border-bottom: 1px solid var(--rule); }
-.kicker { font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
-h1 { font-size: clamp(36px, 7vw, 64px); font-weight: 700; margin-top: 10px; }
-.subtitle { font-family: var(--font-display); font-size: clamp(18px, 2.6vw, 24px); font-weight: 500; color: var(--ink-2); margin-top: 10px; max-width: 30ch; }
+.seg { display: inline-flex; border: 1px solid var(--rule-strong); border-radius: 4px; overflow: hidden; }
+.seg button { background: none; border: 0; padding: 4px 11px; color: var(--ink-2); cursor: pointer; font: 500 12px/1.4 var(--font-mono); letter-spacing: .06em; }
+.seg button + button { border-left: 1px solid var(--rule-strong); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+
+header.title-plate { margin-top: 28px; padding: 26px 0 24px; border-top: 3px solid var(--ink); border-bottom: 1px solid var(--rule); }
+h1 { font-size: clamp(38px, 7.4vw, 68px); font-weight: 700; margin-top: 10px; line-height: 1.0; letter-spacing: -0.012em; }
+.subtitle { font-family: var(--font-display); font-style: italic; font-size: clamp(19px, 2.6vw, 25px); font-weight: 500; color: var(--ink-2); margin-top: 12px; max-width: 34ch; line-height: 1.3; }
 .lede { max-width: 66ch; margin-top: 18px; font-size: 17px; }
-.meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px 24px; margin-top: 20px; font-size: 13px; color: var(--ink-2); }
-.meta b { color: var(--ink); font-weight: 600; }
-.legend { margin-top: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; font-size: 13px; }
-.legend div { padding: 10px 12px; border: 1px solid var(--rule); border-radius: 6px; background: var(--plate); }
-.legend b { display: block; font-family: var(--font-mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--verdigris); margin-bottom: 4px; }
-.filters { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 28px; align-items: center; }
+.meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px 24px; margin-top: 22px; font-size: 13px; color: var(--ink-2); }
+.meta b { display: block; font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--ink); margin-bottom: 2px; }
+
+/* Index of plates */
+section.index { margin-top: 26px; }
+.index-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6px 18px; flex-wrap: wrap; }
+.marks { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: var(--ink-2); }
+.marks span { display: inline-flex; align-items: center; gap: 6px; }
+.mk { display: inline-block; width: 10px; height: 10px; border: 1.5px solid var(--accent); border-radius: 2px; flex: none; }
+.mk.static { background: var(--accent); }
+.mk.heuristic { background: linear-gradient(135deg, var(--accent) 50%, transparent 50%); }
+.mk.manual { border-color: var(--rule-strong); background: transparent; }
+.drawer { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
+@media (max-width: 760px) { .drawer { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.cell { display: grid; grid-template-columns: auto 1fr; gap: 2px 7px; align-content: start; align-items: center; background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 8px 10px 9px; text-decoration: none; color: var(--ink); min-width: 0; }
+.cell:hover { border-color: var(--accent); }
+.cell.dim { opacity: .45; }
+.cell .id { font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--accent); }
+.cell .nm { grid-column: 1 / -1; font-size: 12.5px; line-height: 1.35; }
+
+.legend { margin-top: 26px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px 24px; font-size: 13px; padding-top: 16px; border-top: 1px solid var(--rule); }
+.legend b { display: block; font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+.filters { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 24px; align-items: center; }
 .filters span { font-size: 13px; color: var(--ink-2); margin-right: 4px; }
-.plates { display: grid; gap: 22px; margin-top: 22px; }
-.plate { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 0 20px; background: var(--plate); border: 1px solid var(--rule); border-radius: 8px; padding: 20px 22px 22px; }
-@media (max-width: 640px) { .plate { grid-template-columns: 1fr; gap: 10px; } .plate .rail { border-right: 0; border-bottom: 1px solid var(--rule); padding-bottom: 10px; } }
+.filters button { background: var(--surface); border: 1px solid var(--rule-strong); border-radius: 999px; padding: 3px 11px; color: var(--ink-2); cursor: pointer; font: 13px/1.5 var(--font-body); }
+.filters button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+
+.plates { display: grid; gap: 22px; margin-top: 20px; }
+.plate { display: grid; grid-template-columns: 118px minmax(0, 1fr); gap: 0 22px; background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 22px 24px 22px; scroll-margin-top: 16px; }
+@media (max-width: 640px) { .plate { grid-template-columns: 1fr; gap: 12px; padding: 18px 16px; } .plate .rail { border-right: 0; border-bottom: 1px solid var(--rule); padding: 0 0 12px; } }
+.plate:target { border-color: var(--accent); }
 .plate .rail { border-right: 1px solid var(--rule); padding-right: 14px; min-width: 0; }
-.plate .rail .num { font-family: var(--font-display); font-size: 34px; font-weight: 700; line-height: 1; color: var(--ink); }
+.plate .rail .num { font-family: var(--font-display); font-size: 34px; font-weight: 700; line-height: 1; color: var(--ink); letter-spacing: -0.01em; }
 .plate .rail .latin { font-family: var(--font-display); font-style: italic; font-size: 15px; color: var(--ink-2); margin-top: 8px; line-height: 1.25; }
-.plate .rail .chips { display: grid; gap: 6px; margin-top: 14px; }
-.chip { display: inline-block; font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; border: 1px solid var(--rule); color: var(--ink-2); width: max-content; }
-.chip.detect-static { background: var(--verdigris-soft); color: var(--verdigris); border-color: transparent; }
-.chip.detect-heuristic { background: var(--verdigris-soft); color: var(--verdigris); border-color: transparent; opacity: .8; }
-.chip.detect-manual { background: var(--mark-soft); color: var(--mark); border-color: transparent; }
+.plate .rail .chips { display: grid; grid-template-columns: minmax(0, 1fr); justify-items: start; gap: 6px; margin-top: 14px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; border: 1px solid var(--rule); color: var(--ink-2); max-width: 100%; line-height: 1.35; }
+.chip.detect { color: var(--accent); background: var(--accent-soft); border-color: transparent; }
 .plate h2 { font-size: 24px; margin-bottom: 14px; }
-.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 22px; min-width: 0; }
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 24px; min-width: 0; margin: 0; }
 @media (max-width: 760px) { .fields { grid-template-columns: 1fr; } }
 .field { min-width: 0; }
 .field dt { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); margin-bottom: 3px; }
 .field dd { margin: 0; font-size: 14.5px; }
-.field.symptom dd { color: var(--mark); }
-.specimen { grid-column: 1 / -1; margin-top: 16px; padding: 12px 14px; border-left: 3px solid var(--verdigris); background: var(--verdigris-soft); border-radius: 0 6px 6px 0; font-size: 14px; }
-.specimen b { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--verdigris); display: block; margin-bottom: 4px; }
+.field.symptom dt, .field.symptom dd { color: var(--fault); }
+.specimen { grid-column: 1 / -1; margin-top: 18px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; align-items: baseline; padding: 10px 12px; border: 1px solid var(--rule-strong); border-radius: 6px; background: var(--ground); font-size: 14px; }
+.specimen b { font-family: var(--font-mono); font-size: 10.5px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--on-accent); background: var(--accent); padding: 1px 6px; border-radius: 3px; }
 .refs { grid-column: 1 / -1; margin-top: 10px; font-size: 12.5px; color: var(--ink-2); }
 .refs a { color: var(--ink-2); }
-section.about { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--rule); display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; font-size: 14.5px; }
+section.about { margin-top: 52px; padding-top: 24px; border-top: 1px solid var(--ink); display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; font-size: 14.5px; }
+section.about > div { min-width: 0; }
 section.about h3 { font-size: 20px; margin-bottom: 8px; }
 section.about p { margin: 6px 0; }
-pre.cite { font-family: var(--font-mono); font-size: 12.5px; background: var(--plate); border: 1px solid var(--rule); border-radius: 6px; padding: 10px 12px; overflow-x: auto; white-space: pre-wrap; }
+pre.cite { font-family: var(--font-mono); font-size: 12.5px; background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 10px 12px; overflow-x: auto; white-space: pre-wrap; }
 footer { margin-top: 40px; font-size: 13px; color: var(--ink-2); border-top: 1px solid var(--rule); padding-top: 16px; }
 [hidden] { display: none !important; }
 </style>
-
+<!--body-->
 <div class="wrap">
   <div class="topline">
     <span class="mono">v0.1 · 2026-10-20 · 20 plates · <a href="https://github.com/AxelNoun" target="_blank" rel="noopener">github.com/AxelNoun</a></span>
-    <span class="lang" role="group" aria-label="Language"><button id="l-en" aria-pressed="true">EN</button> <button id="l-fr" aria-pressed="false">FR</button></span>
+    <span class="seg" role="group" aria-label="Language"><button id="l-en" aria-pressed="true">EN</button><button id="l-fr" aria-pressed="false">FR</button></span>
   </div>
 
   <header class="title-plate">
-    <div class="kicker" data-en="A field guide to bugs that don't crash" data-fr="Un guide de terrain des bugs qui ne plantent pas">A field guide to bugs that don't crash</div>
+    <div class="label" data-en="A field guide to bugs that don't crash" data-fr="Un guide de terrain des bugs qui ne plantent pas">A field guide to bugs that don't crash</div>
     <h1 data-en="Silent Failures Registry" data-fr="Registre des défauts silencieux">Silent Failures Registry</h1>
     <div class="subtitle" data-en="Twenty ways scientific and ML code returns a wrong answer without raising an error." data-fr="Vingt façons dont le code scientifique et ML rend une réponse fausse sans lever d'erreur.">Twenty ways scientific and ML code returns a wrong answer without raising an error.</div>
     <p class="lede" data-en="Every plate names one class of defect, where it hides, what it looks like from the outside, how it works, how to detect it, and the test that would have caught it. Every plate is anchored to a specimen: a public pull request or issue where the pattern was found and fixed, with the numbers reported there. Thirteen classes have a static detector in the companion tool, sfradar; seven are documented for manual review." data-fr="Chaque plaque nomme une classe de défaut, où elle se cache, ce qu'on en voit de l'extérieur, son mécanisme, sa détection, et le test qui l'aurait attrapée. Chaque plaque est adossée à un spécimen : une pull request ou une issue publique où le motif a été trouvé et corrigé, avec les chiffres rapportés là. Treize classes ont un détecteur statique dans l'outil compagnon, sfradar ; sept sont documentées pour la revue manuelle.">Every plate names one class of defect, where it hides, what it looks like from the outside, how it works, how to detect it, and the test that would have caught it. Every plate is anchored to a specimen: a public pull request or issue where the pattern was found and fixed, with the numbers reported there. Thirteen classes have a static detector in the companion tool, sfradar; seven are documented for manual review.</p>
     <div class="meta">
-      <div><b data-en="Author" data-fr="Auteur">Author</b><br>Axel Coiffard-Donaty</div>
-      <div><b data-en="Specimens" data-fr="Spécimens">Specimens</b><br>PyTorch ExecuTorch, PyHealth, Brian2, python-neo, DeepLabCut, HSSM, mlx-lm, PyTorch</div>
-      <div><b data-en="Companion tool" data-fr="Outil compagnon">Companion tool</b><br>sfradar — 7/7 specimens detected on pre-fix code, 0 findings on a clean control</div>
-      <div><b data-en="Licence" data-fr="Licence">Licence</b><br>CC BY 4.0 (text) · MIT (code)</div>
+      <div><b data-en="Author" data-fr="Auteur">Author</b>Axel Coiffard-Donaty</div>
+      <div><b data-en="Specimens" data-fr="Spécimens">Specimens</b>PyTorch ExecuTorch, PyHealth, Brian2, python-neo, DeepLabCut, HSSM, mlx-lm, PyTorch</div>
+      <div><b data-en="Companion tool" data-fr="Outil compagnon">Companion tool</b>sfradar — 7/7 specimens detected on pre-fix code, 0 findings on a clean control</div>
+      <div><b data-en="Licence" data-fr="Licence">Licence</b>MIT (code and text) — see LICENSE</div>
     </div>
   </header>
+
+  <section class="index" aria-labelledby="index-title">
+    <div class="index-head">
+      <span class="label" id="index-title" data-en="Index of plates" data-fr="Index des plaques">Index of plates</span>
+      <span class="marks">
+        <span><i class="mk static" aria-hidden="true"></i><span data-en="static detector" data-fr="détecteur statique">static detector</span></span>
+        <span><i class="mk heuristic" aria-hidden="true"></i><span data-en="heuristic" data-fr="heuristique">heuristic</span></span>
+        <span><i class="mk manual" aria-hidden="true"></i><span data-en="manual review" data-fr="revue manuelle">manual review</span></span>
+      </span>
+    </div>
+    <nav class="drawer" id="drawer" aria-labelledby="index-title"></nav>
+  </section>
 
   <div class="legend">
     <div><b data-en="Family" data-fr="Famille">Family</b><span data-en="data · numerics · concurrency · control-flow · build-ci · codegen" data-fr="données · numérique · concurrence · flot de contrôle · build-ci · génération de code">data · numerics · concurrency · control-flow · build-ci · codegen</span></div>
@@ -119,7 +172,7 @@ footer { margin-top: 40px; font-size: 13px; color: var(--ink-2); border-top: 1px
     </div>
     <div>
       <h3 data-en="How to cite" data-fr="Comment citer">How to cite</h3>
-      <pre class="cite">Coiffard-Donaty, A. (2026). Silent Failures Registry, v0.1. https://github.com/AxelNoun</pre>
+      <pre class="cite">Coiffard-Donaty, A. (2026). Silent Failures Registry, v0.1. https://github.com/AxelNoun/silent-failures</pre>
       <p data-en="Contributions: a new plate needs a public specimen with numbers; a fix to a plate needs a reference or a reproduction." data-fr="Contributions : une nouvelle plaque exige un spécimen public chiffré ; une correction de plaque exige une référence ou une reproduction.">Contributions: a new plate needs a public specimen with numbers; a fix to a plate needs a reference or a reproduction.</p>
     </div>
     <div>
@@ -147,6 +200,7 @@ footer { margin-top: 40px; font-size: 13px; color: var(--ink-2); border-top: 1px
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   let lang = "en", fam = "all";
   const plates = document.getElementById("plates");
+  const drawer = document.getElementById("drawer");
   function render() {
     const L = LABELS[lang];
     plates.innerHTML = ENTRIES.filter(e => fam === "all" || e.family === fam).map(e => {
@@ -154,9 +208,9 @@ footer { margin-top: 40px; font-size: 13px; color: var(--ink-2); border-top: 1px
       const refs = (e.refs || []).map(k => REFS[k]).filter(Boolean).map(r => `<a href="${esc(r.u)}" target="_blank" rel="noopener">${esc(r.t)}</a>`).join(" · ");
       return `<article class="plate" id="${e.id}">
         <div class="rail">
-          <div class="num mono">${esc(e.id)}</div>
+          <div class="num">${esc(e.id)}</div>
           <div class="latin">${esc(e.latin)}</div>
-          <div class="chips"><span class="chip">${esc(FAM[lang][e.family] || e.family)}</span><span class="chip detect-${esc(e.detect)}">${esc(DET[lang][e.detect])}</span></div>
+          <div class="chips"><span class="chip">${esc(FAM[lang][e.family] || e.family)}</span><span class="chip detect"><i class="mk ${esc(e.detect)}" aria-hidden="true"></i>${esc(DET[lang][e.detect])}</span></div>
         </div>
         <div>
           <h2>${esc(t.name)}</h2>
@@ -172,6 +226,14 @@ footer { margin-top: 40px; font-size: 13px; color: var(--ink-2); border-top: 1px
         </div>
       </article>`;
     }).join("");
+    drawer.innerHTML = ENTRIES.map(e =>
+      `<a class="cell${fam !== "all" && e.family !== fam ? " dim" : ""}" href="#${e.id}" data-id="${e.id}"><i class="mk ${esc(e.detect)}" aria-hidden="true"></i><span class="id">${esc(e.id)}</span><span class="nm">${esc(e[lang].name)}</span></a>`
+    ).join("");
+  }
+  function setFamily(f) {
+    fam = f;
+    document.querySelectorAll(".filters button").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.f === f)));
+    render();
   }
   function setLang(l) {
     lang = l;
@@ -184,11 +246,15 @@ footer { margin-top: 40px; font-size: 13px; color: var(--ink-2); border-top: 1px
   }
   document.getElementById("l-en").addEventListener("click", () => setLang("en"));
   document.getElementById("l-fr").addEventListener("click", () => setLang("fr"));
-  document.querySelectorAll(".filters button").forEach(b => b.addEventListener("click", () => {
-    fam = b.dataset.f;
-    document.querySelectorAll(".filters button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
-    render();
-  }));
+  document.querySelectorAll(".filters button").forEach(b => b.addEventListener("click", () => setFamily(b.dataset.f)));
+  // A plate hidden by the family filter cannot be scrolled to: clicking it in the index shows all plates first.
+  drawer.addEventListener("click", ev => {
+    const a = ev.target.closest("a.cell"); if (!a) return;
+    ev.preventDefault();
+    if (fam !== "all") setFamily("all");
+    const el = document.getElementById(a.dataset.id);
+    if (el) { el.scrollIntoView({block: "start"}); try { history.replaceState(null, "", "#" + a.dataset.id); } catch (e) {} }
+  });
   let initial = "en";
   try { initial = localStorage.getItem("sfr-lang") || initial; } catch (e) {}
   if (location.hash === "#fr") initial = "fr";
